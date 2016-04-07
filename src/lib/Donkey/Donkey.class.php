@@ -11,7 +11,7 @@ class Donkey
 {
     public function __construct()
     {
-        $server = new Server();
+        $server = new HttpServer();
     }
 }
 

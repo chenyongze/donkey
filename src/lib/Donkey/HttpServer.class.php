@@ -8,7 +8,7 @@
  */
 namespace Donkey;
 
-class Server
+class HttpServer
 {
     private static $server;
     private $setting = array(
@@ -46,24 +46,23 @@ class Server
         unset($this->setting["host"]);
         unset($this->setting["port"]);
 
-        Server::$server = new \swoole_server($host, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
-        Server::$server->set($this->setting);
-        Server::$server->on("Start", array($this, 'onStart'));
-        Server::$server->on("Shutdown", array($this, "onShutdown"));
-        Server::$server->on("WorkerStart", array($this, "onWorkerStart"));
-        Server::$server->on("WorkerStop", array($this, "onWorkerStop"));
-        Server::$server->on("Timer", array($this, "onTimer"));
-        Server::$server->on("Connect", array($this, "onConnect"));
-        Server::$server->on("Receive", array($this, "onReceive"));
-        Server::$server->on("Packet", array($this, "onPacket"));
-        Server::$server->on("Close", array($this, "onClose"));
-        Server::$server->on("Task", array($this, "onTask"));
-        Server::$server->on("Finish", array($this, "onFinish"));
-        Server::$server->on("PipeMessage", array($this, "onPipeMessage"));
-        Server::$server->on("WorkerError", array($this, "onWorkerError"));
-        Server::$server->on("ManagerStart", array($this, "onManagerStart"));
-        Server::$server->on("ManagerStop", array($this, "onManagerStop"));
-        Server::$server->start();
+        HttpServer::$server = new \swoole_http_server($host, $port);
+        HttpServer::$server->set($this->setting);
+        HttpServer::$server->on("Start", array($this, 'onStart'));
+        HttpServer::$server->on("Shutdown", array($this, "onShutdown"));
+        HttpServer::$server->on("WorkerStart", array($this, "onWorkerStart"));
+        HttpServer::$server->on("WorkerStop", array($this, "onWorkerStop"));
+        HttpServer::$server->on("Timer", array($this, "onTimer"));
+        HttpServer::$server->on("Request", array($this, "onRequest"));
+        HttpServer::$server->on("Packet", array($this, "onPacket"));
+        HttpServer::$server->on("Close", array($this, "onClose"));
+        HttpServer::$server->on("Task", array($this, "onTask"));
+        HttpServer::$server->on("Finish", array($this, "onFinish"));
+        HttpServer::$server->on("PipeMessage", array($this, "onPipeMessage"));
+        HttpServer::$server->on("WorkerError", array($this, "onWorkerError"));
+        HttpServer::$server->on("ManagerStart", array($this, "onManagerStart"));
+        HttpServer::$server->on("ManagerStop", array($this, "onManagerStop"));
+        HttpServer::$server->start();
     }
 
     /**
@@ -120,26 +119,12 @@ class Server
     }
 
     /**
-     * 有新的连接进入时，在worker进程中回调
-     * @param $server swoole_server server句柄
-     * @param $fd int 是连接的文件描述符，发送数据/关闭连接时需要此参数
-     * @param $from_id int 来自那个Reactor线程
+     * @param $request
+     * @param $response
      */
-    public function onConnect($server, $fd, $from_id)
-    {
-        echo "onConnect\n";
-    }
-
-    /**
-     * 接收到数据时回调此函数，发生在worker进程中
-     * @param $server swoole_server server句柄
-     * @param $fd int TCP客户端连接的文件描述符
-     * @param $from_id int TCP连接所在的Reactor线程ID
-     * @param $data string 收到的数据内容，可能是文本或者二进制内容
-     */
-    public function onReceive($server, $fd, $from_id, $data)
-    {
-
+    public function onRequest($request, $response){
+        (new Route())->run($request);
+        $response->end("<h1>hello swoole</h1>");
     }
 
     /**
