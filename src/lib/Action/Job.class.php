@@ -9,7 +9,7 @@
 namespace Action;
 
 
-class Job
+class Job   extends Common
 {
 
 }

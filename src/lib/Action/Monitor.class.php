@@ -9,7 +9,7 @@
 namespace Action;
 
 
-class Monitor
+class Monitor   extends Common
 {
 
 }
