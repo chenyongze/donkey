@@ -15,7 +15,9 @@ class Route
     public function run($request)
     {
         $path_info = $request->server["path_info"];
-        $path_info = trim($path_info);
+        $path_info = trim($path_info,"/");
+        $params = explode("/",$path_info);
+
 
         print_r($request);
     }
